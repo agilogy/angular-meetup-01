@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "underscore": "~1.5.1",
-    "express": "~2.5.9",
+    "express": "3.1.x",
     "mustache": "~0.7.2",
     "socket.io": "~0.9.13"
   },
@@ -35,7 +35,8 @@
     "grunt-contrib-sass": "~0.5.0",
     "grunt-contrib-connect": "~0.4.1",
     "grunt-zip": "~0.7.0",
-    "grunt": "~0.4.0"
+    "grunt": "~0.4.0",
+    "grunt-contrib-copy": "~0.4.1"
   },
   "licenses": [
     {

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js - The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/moon.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides" ng-app="angularMeetup" ng-controller="AppCtrl">
+				<!-- <section data-markdown="https://api.github.com/repos/sgimeno/phonegap-require-seed/contents/UPDATING.md"> -->
+				<!-- <section data-markdown="slides/angular-big-apps.md" data-separator="^---" data-vertical="^--" data-notes="^Note:">
+				</section> -->
+				<section>
+					<h2>Structuring big apps</h2>
+					<h3>with AngularJS</h3>
+					<p><a href="#">@_sgimeno</a></p>
+				</section>
+				<section>
+					<section>
+						<h2>Logical Strcture</h2>
+					</section>
+					<section>
+						<h3>Do it the angular way...</h3>
+						<img src="img/hmm.jpeg" alt="">
+					</section>
+					<section>
+						<h3>Modules</h3>
+						<pre><code data-trim>
+angular.module('yourAppName', ['yourAppName.yourAppDependency']);
+angular.module('yourAppName.yourAppDependency');
+						</code></pre>
+						<p>
+							Define and configure all modules in a app.js
+						</p>
+					</section>
+					<section>
+						<h3>Directives</h3>
+					<pre><code data-trim>
+//My cool applicaton
+angular.module('yourAppName.yourAppDependency')
+.directive('mcaControlPanel', function () {
+  // ...
+});
+					</code></pre>
+					<p>Prefix them to avoid collision with 3rd party components</p>
+					</section>
+
+					<section>
+						<h3>Filters</h3>
+						<pre><code data-trim>
+							{{userModel.name | lastNameFirst}}
+						</code></pre>
+						<p>Can be called multiple times</p>
+						<pre><code data-trim>
+angular.module('myApp')
+.controller('MyCtrl', function ($scope, $http, $filter) {
+  $http.get('/userModel')
+    .success(function (data) {
+      $scope.userModel = data;
+      $scope.userModel.name = $filter('lastNameFirst')($scope.userModel.name);
+    });
+});
+						</code></pre>
+						<p>Called only once</p>
+					</section>
+					<section>
+						<h3>Services</h3>
+						<pre><code data-trim style="max-height:500px">
+app.service('MyService', function ($http, $q, $angularCacheFactory) {
+    var _dataCache = $angularCacheFactory('dataCache', { 
+        maxAge: 3600000 // items expire after an hour
+    });
+    /**
+     * @class MyService
+     */
+    return {
+        manipulateData: function (input) {
+            var output;
+            // do something with the data
+            return output;
+        },
+            
+        getDataById: function (id) {
+            var deferred = $q.defer();
+            if (_dataCache.get(id)) {
+                deferred.resolve(_dataCache.get(id));
+            } else {
+                // Get the data from the server and populate cache
+            }
+            return deferred.promise;
+        }
+    };
+});
+    </code></pre>
+				
+						</code>
+						<a href="http://slid.es/jdobry/building-large-apps-with-angularjs" style="font-size:0.4em">Building LARGE apps with Angular.js by Jason Dobry</a>
+					</section>
+					<section>
+						<h3>Controllers</h3>
+						<pre><code data-trim>
+angular.module('yourAppName.yourAppDependency')
+.controller('MyCtrl', function () {
+  // ...
+});
+						</code></pre>
+						<p>
+						Define controllers, services, etc. on modules like this
+						</p>
+					</section>
+					<section>
+						<h3>Scopes</h3>
+						<img src="img/wtf.jpg" alt="wtf">						
+					</section>
+					<section>
+						<h3>Common pitfalls</h3>
+						<ul>
+							<li class="fragment fade-in">Digest cycle and expressions</li>
+							<li class="fragment fade-in">References to DOM elements</li>
+							<li class="fragment fade-in">Not using built-ins</li>
+							<li class="fragment fade-in">Wrong current scope</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section><h2>Testing</h2></section>
+					<section>
+						<h3>Unit test</h3>
+						<pre><code data-trim>
+describe( 'AppCtrl', function() {
+  describe( 'isCurrentUrl', function() {
+    var AppCtrl, $location, $scope;
+
+    beforeEach( module( 'ngBoilerplate' ) );
+
+    beforeEach( inject( function( $controller, _$location_, $rootScope ) {
+      $location = _$location_;
+      $scope = $rootScope.$new();
+      AppCtrl = $controller( 'AppCtrl', { $location: $location, $scope: $scope });
+    }));
+
+    it( 'should pass a dummy test', inject( function() {
+      expect( AppCtrl ).toBeTruthy();
+    }));
+  });
+});							
+						</code></pre>
+
+					</section>
+					<section>
+						<h3>E2E Testing</h3>
+						<pre><code data-trim>
+describe( 'ng-boilerplate', function() {
+  var url = '/base/build/index.html';
+  describe( 'smoke test', function() {
+
+    it( 'initial state', function () {
+      // Trigger state change: Load page
+      browser().navigateTo(url);
+
+      // Check rendered HTML: Top heading is correct, and ng-view content has correct heading
+      expect(element('div.masthead h3', 'top heading').text()).toContain('ng-boilerplate');
+
+      // Check URL partial: /home
+      expect(browser().window().hash()).toEqual('/home');
+    });
+
+  });
+});						
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Physical layout</h2>
+					</section>
+					<section>
+						<h3>Pick a seed project</h3>
+						
+						<img src="img/angular.png" width="100" heigth="100" alt="">
+						<p>Angular Seed Project</p>
+						<img src="img/yeoman.png" width="100" heigth="100" alt="">
+						<p>Yeoman</p>
+						<img src="img/ngbp.png" width="100" heigth="100" alt="">
+						<p>ngBoilerplate</p>
+						
+					</section>
+					<section>
+						<h3>ng-Boilerplate</h3>
+						<ul>
+							<li>Project layout organized per feature</li>
+							<li>Tests alongside the code</li>
+							<li>Complex build process</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Overall Directory Structure</h3>
+						<pre><code data-trim style="max-height:600px">
+ng-boilerplate/
+  |- grunt-tasks/
+  |- karma/
+  |- src/
+  |  |- app/
+  |  |  |- [app logic]
+  |  |- assets/
+  |  |  |- [static files]
+  |  |- common/
+  |  |  |- [reusable code]
+  |  |- less/
+  |  |  |- main.less
+  |- vendor/
+  |  |- angular-bootstrap/
+  |  |- bootstrap/
+  |  |- placeholders/
+  |- .bowerrc
+  |- bower.json
+  |- build.config.js
+  |- Gruntfile.js
+  |- module.prefix
+  |- module.suffix
+  |- package.json
+						</code></pre>
+					</section>
+					<section>
+						<h3>The 'src' directory</h3>
+						<pre><code data-trim>
+src/
+  |- app/
+  |  |- home/
+  |  |- about/
+  |  |- app.js
+  |  |- app.spec.js
+						</pre></code>
+						<pre><code data-trim>
+  src/
+  |- app/
+  |  |- home/
+  |  |  |- home.js
+  |  |  |- home.less
+  |  |  |- home.spec.js
+  |  |  |- home.tpl.html
+						</pre></code>
+
+					</section>
+
+					<section>
+						<h3>AngularJS Companions</h3>
+						<ul>
+							<li>angular-bootstrap</li>
+							<li>angular-ui-utils</li>
+							<li>angular-ui-router</li>
+						</ul>
+					</section>
+					<section>
+						<h2>The END</h2>
+					</section>
+					<section>
+						<h2>References</h2>
+						<ul>
+							<li>
+								<a href="http://stackoverflow.com/questions/14049480/what-are-the-nuances-of-scope-prototypal-prototypical-inheritance-in-angularjs">Scope inheritance</a>
+							</li>
+							<li>
+								<a href="https://plus.google.com/u/0/108076675731922659261/posts/RJfNJoUqxHv">Multiple AngularJS app's</a>
+							</li>
+							<li>
+								<a href="http://thenittygritty.co/angularjs-pitfalls-using-scopes">Scope pitfalls</a>
+							</li>
+							<li>
+								<a href="http://blog.artlogic.com/2013/05/02/ive-been-doing-it-wrong-part-1-of-3/">What I've been doing wrong</a>
+							</li>
+							<li>
+								<a href="http://www.yearofmoo.com/2013/01/full-spectrum-testing-with-angularjs-and-karma.html">Full spectrum testing</a>
+							</li>
+							<li>
+								<a href="https://github.com/ngbp/ng-boilerplate">ngBoilerplate</a>
+							</li>
+							<li>
+								<a href="https://github.com/rolaveric/ng-boilerplate/tree/e2e">ngBoilerplate E2E test setup</a>
+							</li>
+						</ul>
+					</section>
+
+				</section>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="js/app.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ 
+						src: 'plugin/markdown/markdown.js', 
+						condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+					},
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

@@ -25,15 +25,15 @@ module.exports = function(grunt) {
 				banner: '<%= meta.banner %>\n'
 			},
 			build: {
-				src: 'js/reveal.js',
-				dest: 'js/reveal.min.js'
+				src: ['public/js/reveal.js', 'bower_components/angular/angular.js', 'public/js/app.js'],
+				dest: 'public/js/app.min.js'
 			}
 		},
 
 		cssmin: {
 			compress: {
 				files: {
-					'css/reveal.min.css': [ 'css/reveal.css' ]
+					'public/css/reveal.min.css': [ 'public/css/reveal.css' ]
 				}
 			}
 		},
@@ -53,8 +53,22 @@ module.exports = function(grunt) {
 			}
 		},
 
+		copy: {
+			build_vendorjs: {
+				files: [{
+					src: [
+						'bower_components/angular/angular.js',
+					],
+					dest: 'public/',
+					cwd: '.',
+					expand: true
+				}]
+			}
+		},
+
 		jshint: {
 			options: {
+				
 				curly: false,
 				eqeqeq: true,
 				immed: true,
@@ -62,7 +76,7 @@ module.exports = function(grunt) {
 				newcap: true,
 				noarg: true,
 				sub: true,
-				undef: true,
+				//undef: true,
 				eqnull: true,
 				browser: true,
 				expr: true,
@@ -72,7 +86,7 @@ module.exports = function(grunt) {
 					console: false
 				}
 			},
-			files: [ 'Gruntfile.js', 'js/reveal.js' ]
+			files: [ 'Gruntfile.js', 'js/reveal.js', 'js/app.js' ]
 		},
 
 		connect: {
@@ -97,11 +111,11 @@ module.exports = function(grunt) {
 
 		watch: {
 			main: {
-				files: [ 'Gruntfile.js', 'js/reveal.js', 'css/reveal.css' ],
-				tasks: 'default'
+				files: [ 'Gruntfile.js', 'public/js/reveal.js', 'public/js/app.js', 'public/css/reveal.css' ],
+				tasks: 'develop'
 			},
 			theme: {
-				files: [ 'css/theme/source/*.scss', 'css/theme/template/*.scss' ],
+				files: [ 'public/css/theme/source/*.scss', 'public/css/theme/template/*.scss' ],
 				tasks: 'themes'
 			}
 		}
@@ -112,6 +126,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks( 'grunt-contrib-qunit' );
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-cssmin' );
+	grunt.loadNpmTasks( 'grunt-contrib-copy' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 	grunt.loadNpmTasks( 'grunt-contrib-watch' );
 	grunt.loadNpmTasks( 'grunt-contrib-sass' );
@@ -120,6 +135,8 @@ module.exports = function(grunt) {
 
 	// Default task
 	grunt.registerTask( 'default', [ 'jshint', 'cssmin', 'uglify', 'qunit' ] );
+
+	grunt.registerTask( 'develop', [ 'jshint', 'cssmin', 'copy:build_vendorjs' ] );
 
 	// Theme task
 	grunt.registerTask( 'themes', [ 'sass' ] );

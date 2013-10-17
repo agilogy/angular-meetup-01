@@ -2,5 +2,6 @@
 .svn
 log/*.log
 tmp/**
+bower_components/
 node_modules/
 .sass-cache
